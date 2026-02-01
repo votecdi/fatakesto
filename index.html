@@ -3,429 +3,511 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
 <title>আম্মারকে বাঁচান</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-body{
-  margin:0;
-  font-family:'Hind Siliguri',sans-serif;
-  background:#fcf9c5;
-  overflow:hidden;
-}
+  :root { --bg:#fcf9c5; }
 
-#game{
-  position:relative;
-  max-width:450px;
-  height:100vh;
-  margin:auto;
-  background:#fcf9c5;
-  overflow:hidden;
-}
+  body{
+    margin:0;
+    font-family:'Hind Siliguri',system-ui,sans-serif;
+    background:var(--bg);
+    overflow:hidden;
 
-/* HUD */
-#hud{
-  position:absolute;
-  top:15px;
-  left:50%;
-  transform:translateX(-50%);
-  display:flex;
-  gap:6px;
-  background:#fff9c4;
-  border:2px solid #e0cf8d;
-  padding:8px;
-  border-radius:14px;
-  z-index:1000;
-  font-weight:800;
-}
+    /* ✅ mobile jitter fix */
+    position: fixed;
+    width:100%;
+    overscroll-behavior:none;
+    touch-action:none;
+  }
 
-.pill{
-  background:#fff;
-  padding:6px 8px;
-  border-radius:10px;
-  font-size:13px;
-}
+  /* ✅ stable viewport height on mobile */
+  #game{
+    position:relative;
+    max-width:450px;
+    height:100svh;
+    min-height:100vh;
+    margin:0 auto;
+    background:var(--bg);
+    overflow:hidden;
 
-.btn{
-  border:none;
-  border-radius:10px;
-  padding:7px 12px;
-  font-weight:900;
-  color:white;
-  cursor:pointer;
-}
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+  }
 
-.start{background:#5c8aff;}
-.pause{background:#777;}
-.share{background:#33a853;}
+  /* HUD */
+  #hud{
+    position:fixed; /* ✅ stop shaking */
+    top:14px;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    gap:8px;
+    align-items:center;
+    background:#fff9c4;
+    border:2px solid #e0cf8d;
+    padding:10px 10px;
+    border-radius:16px;
+    z-index:1000;
+    font-weight:900;
+    box-shadow:0 6px 16px rgba(0,0,0,.10);
+    user-select:none;
+  }
 
-/* Player */
-#player{
-  position:absolute;
-  bottom:140px;
-  left:50%;
-  width:80px;
-  height:80px;
-  transform:translateX(-50%);
-  background:url('ammar.png') no-repeat center/contain;
-}
+  .pill{
+    background:#fff;
+    padding:6px 10px;
+    border-radius:12px;
+    font-size:13px;
+    color:#222;
+    min-width:80px;
+    text-align:left;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.04);
+  }
 
-/* Enemy */
-.enemy{
-  position:absolute;
-  width:55px;
-  height:55px;
-  background:url('bcl.png') no-repeat center/contain;
-}
+  .btn{
+    border:none;
+    border-radius:12px;
+    padding:8px 12px;
+    font-weight:900;
+    color:white;
+    cursor:pointer;
+    box-shadow:0 4px 12px rgba(0,0,0,.12);
+  }
+  .btn:active{ transform:scale(.98); }
+  .start{background:#5c8aff;}
+  .pause{background:#777;}
+  .share{background:#33a853;}
 
-/* Overlay */
-#overlay{
-  position:absolute;
-  inset:0;
-  background:rgba(0,0,0,.4);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:2000;
-}
+  /* Player */
+  #player{
+    position:absolute;
+    bottom:140px;
+    left:0; /* we will move using transform */
+    width:80px;
+    height:80px;
+    background:url('ammar.png') no-repeat center/contain;
+    pointer-events:none;
+    z-index:10;
 
-#modal{
-  width:85%;
-  background:white;
-  border-radius:18px;
-  padding:20px;
-  text-align:center;
-  border:4px solid #2e7d32;
-}
+    will-change: transform;
+    transform: translate3d(0,0,0);
+  }
 
-#modal h2{
-  margin:0;
-  color:#2e7d32;
-  font-weight:900;
-}
+  /* Enemy */
+  .enemy{
+    position:absolute;
+    left:0; top:0;
+    width:55px;
+    height:55px;
+    background:url('bcl.png') no-repeat center/contain;
+    pointer-events:none;
+    z-index:9;
 
-#modal .text{
-  text-align:left;
-  font-weight:800;
-  line-height:1.6;
-  margin:12px 0;
-  color:#222;
-}
+    will-change: transform;
+    transform: translate3d(0,0,0);
+  }
 
-.bigbtn{
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  margin:6px 0;
-  font-size:17px;
-  font-weight:900;
-  cursor:pointer;
-  color:white;
-}
+  /* Overlay */
+  #overlay{
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,.40);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:2000;
+    padding:16px;
+  }
 
-.blue{background:#5c8aff;}
-.green{background:#33a853;}
-.gray{background:#ccc;color:#222;}
+  #modal{
+    width:88%;
+    max-width:420px;
+    background:white;
+    border-radius:20px;
+    padding:20px 18px;
+    text-align:center;
+    border:4px solid #2e7d32;
+    box-shadow:0 14px 34px rgba(0,0,0,.28);
+  }
 
-#credit{
-  position:absolute;
-  bottom:6px;
-  left:50%;
-  transform:translateX(-50%);
-  font-size:12px;
-  font-weight:800;
-  opacity:.7;
-}
+  #modal h2{
+    margin:0;
+    font-size:22px;
+    font-weight:900;
+    color:#2e7d32;
+    line-height:1.2;
+  }
+
+  #modal .text{
+    text-align:left;
+    font-weight:800;
+    line-height:1.6;
+    margin:12px 0;
+    color:#222;
+    font-size:15px;
+  }
+
+  .bigbtn{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:12px;
+    margin:8px 0 0;
+    font-size:18px;
+    font-weight:900;
+    cursor:pointer;
+    color:white;
+  }
+
+  .green{background:#33a853;}
+  .blue{background:#5c8aff;}
+  .gray{background:rgba(0,0,0,.10); color:#222;}
+
+  #credit{
+    position:absolute;
+    bottom:8px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:12px;
+    font-weight:900;
+    color:#333;
+    opacity:.75;
+    z-index:50;
+    white-space:nowrap;
+  }
 </style>
 </head>
 
 <body>
-
 <div id="game">
 
-<!-- HUD -->
-<div id="hud">
-  <div class="pill">Score: <span id="score">0</span></div>
-  <div class="pill">Time: <span id="time">00:00</span></div>
-
-  <button class="btn start" id="btnStart">Start</button>
-  <button class="btn pause" id="btnPause">Pause</button>
-  <button class="btn share" id="btnShare">Share</button>
-</div>
-
-<!-- Player -->
-<div id="player"></div>
-
-<!-- Overlay -->
-<div id="overlay">
-  <div id="modal">
-    <h2 id="title">ছাত্রলীগের হাত থেকে আম্মারকে বাঁচান</h2>
-
-    <div class="text" id="body">
-      <b>খেলার নিয়ম:</b><br>
-      ১) আঙুল টেনে আম্মারকে নড়ান<br>
-      ২) উপরের লোগো এড়ান<br>
-      ৩) লাগলে খেলা শেষ<br>
-      ৪) যত বাঁচবেন স্কোর বাড়বে<br>
-      <span style="color:red">⚠️ সাবধান!</span>
-    </div>
-
-    <button class="bigbtn green" id="btnMain">খেলা শুরু করুন</button>
-    <button class="bigbtn gray" id="btnClose">Close</button>
+  <div id="hud">
+    <div class="pill">Score: <span id="score">0</span></div>
+    <div class="pill">Time: <span id="time">00:00</span></div>
+    <button class="btn start" id="btnStart">Start</button>
+    <button class="btn pause" id="btnPause">Pause</button>
+    <button class="btn share" id="btnShare">Share</button>
   </div>
-</div>
 
-<!-- Credit -->
-<div id="credit">
-  Developed by রাজশাহী বিশ্ববিদ্যালয় ছাত্রলীগ
-</div>
+  <div id="player"></div>
 
+  <div id="overlay">
+    <div id="modal">
+      <h2 id="title">ছাত্রলীগের হাত থেকে আম্মারকে বাঁচান</h2>
+
+      <div class="text" id="body">
+        <b>খেলার নিয়ম:</b><br>
+        ১) আঙুল টেনে আম্মারকে ডানে-বামে নড়ান<br>
+        ২) উপরে থেকে পড়া ছাত্রলীগের লোগো এড়ান<br>
+        ৩) লোগোতে ধাক্কা লাগলে খেলা শেষ<br>
+        ৪) যত বাঁচবেন, স্কোর তত বাড়বে<br>
+        <span style="color:#d32f2f;font-weight:900">⚠️ সাবধান! লোগো দ্রুত নামবে</span>
+      </div>
+
+      <button class="bigbtn green" id="btnMain">খেলা শুরু করুন</button>
+      <button class="bigbtn gray" id="btnClose">Close</button>
+    </div>
+  </div>
+
+  <div id="credit">Developed by রাজশাহী বিশ্ববিদ্যালয় ছাত্রলীগ</div>
 </div>
 
 <script>
-const game = document.getElementById("game");
-const player = document.getElementById("player");
+  // ===== DOM =====
+  const game = document.getElementById("game");
+  const playerEl = document.getElementById("player");
 
-const scoreEl = document.getElementById("score");
-const timeEl = document.getElementById("time");
+  const scoreEl = document.getElementById("score");
+  const timeEl  = document.getElementById("time");
 
-const overlay = document.getElementById("overlay");
-const title = document.getElementById("title");
-const body = document.getElementById("body");
+  const overlay = document.getElementById("overlay");
+  const modal = document.getElementById("modal");
+  const title = document.getElementById("title");
+  const body  = document.getElementById("body");
 
-const btnMain = document.getElementById("btnMain");
-const btnClose = document.getElementById("btnClose");
+  const btnMain  = document.getElementById("btnMain");
+  const btnClose = document.getElementById("btnClose");
 
-const btnStart = document.getElementById("btnStart");
-const btnPause = document.getElementById("btnPause");
-const btnShare = document.getElementById("btnShare");
+  const btnStart = document.getElementById("btnStart");
+  const btnPause = document.getElementById("btnPause");
+  const btnShare = document.getElementById("btnShare");
 
-let state="menu";
-let score=0;
-let startTime=0;
-let last=0;
+  // ===== State =====
+  let state = "menu"; // menu | playing | paused | over
+  let score = 0;
 
-let enemies=[];
-let nextSpawn=0;
-let drag=false;
+  let startTime = 0;
+  let last = 0;
 
-/* Utils */
-function timeFmt(s){
-  return String(Math.floor(s/60)).padStart(2,"0")+":"+
-         String(s%60).padStart(2,"0");
-}
+  // ✅ smooth physics (no DOM rect per frame)
+  const PLAYER_W = 80, PLAYER_H = 80;
+  const ENEMY_W  = 55, ENEMY_H  = 55;
 
-/* Overlay */
-function show(type){
-  overlay.style.display="flex";
+  let playerX = 0;     // px inside game
+  let drag = false;
 
-  if(type==="menu"){
-    title.innerText="ছাত্রলীগের হাত থেকে আম্মারকে বাঁচান";
+  // enemies (objects)
+  let enemies = [];
+  let nextSpawn = 0;
 
-    body.innerHTML=`
-      <b>খেলার নিয়ম:</b><br>
-      ১) আঙুল টেনে আম্মারকে নড়ান<br>
-      ২) উপরের লোগো এড়ান<br>
-      ৩) লাগলে খেলা শেষ<br>
-      ৪) যত বাঁচবেন স্কোর বাড়বে<br>
-      <span style="color:red">⚠️ সাবধান!</span>
-    `;
+  // ✅ enemy pooling (reuse nodes)
+  const POOL = [];
 
-    btnMain.innerText="খেলা শুরু করুন";
-    btnMain.onclick=start;
-
-    btnClose.onclick=hide;
+  function timeFmt(sec){
+    sec = Math.max(0, sec|0);
+    return String(Math.floor(sec/60)).padStart(2,"0")+":"+
+           String(sec%60).padStart(2,"0");
   }
 
-  if(type==="paused"){
-    title.innerText="Paused";
-    body.innerHTML="Resume করতে নিচের বাটনে চাপুন";
-
-    btnMain.innerText="Resume";
-    btnMain.onclick=resume;
-
-    btnClose.onclick=hide;
+  function playerY(){
+    // same as CSS: bottom:140px
+    return game.clientHeight - 140 - PLAYER_H;
   }
 
-  if(type==="over"){
-    document.getElementById("modal").style.borderColor="#d32f2f";
-    title.style.color="#d32f2f";
-
-    title.innerText="খেলা শেষ!";
-
-    body.innerHTML=`
-      <b>ছাত্রলীগ আম্মারকে ধরে ফেলেছে</b><br><br>
-      আপনার স্কোর: <span style="color:red">${score}</span>
-    `;
-
-    btnMain.innerText="আবার খেলুন";
-    btnMain.onclick=start;
-
-    btnClose.innerText="ফলো করুন";
-    btnClose.onclick=()=>{
-      window.open("https://facebook.com","_blank");
-    };
+  function setPlayerX(x){
+    const w = game.clientWidth;
+    playerX = Math.max(0, Math.min(w - PLAYER_W, x));
+    playerEl.style.transform = `translate3d(${playerX}px,0,0)`;
   }
-}
 
-function hide(){
-  overlay.style.display="none";
-}
+  function centerPlayer(){
+    setPlayerX((game.clientWidth - PLAYER_W)/2);
+  }
 
-/* Game */
-function reset(){
-  enemies.forEach(e=>e.el.remove());
-  enemies=[];
+  function show(kind){
+    overlay.style.display = "flex";
+    btnMain.style.display = "block";
+    btnClose.style.display = "block";
 
-  score=0;
-  scoreEl.innerText=0;
+    // reset colors
+    modal.style.borderColor = "#2e7d32";
+    title.style.color = "#2e7d32";
 
-  startTime=performance.now();
-  last=startTime;
+    if(kind==="menu"){
+      title.innerText = "ছাত্রলীগের হাত থেকে আম্মারকে বাঁচান";
+      body.innerHTML = `
+        <b>খেলার নিয়ম:</b><br>
+        ১) আঙুল টেনে আম্মারকে ডানে-বামে নড়ান<br>
+        ২) উপরে থেকে পড়া ছাত্রলীগের লোগো এড়ান<br>
+        ৩) লোগোতে ধাক্কা লাগলে খেলা শেষ<br>
+        ৪) যত বাঁচবেন, স্কোর তত বাড়বে<br>
+        <span style="color:#d32f2f;font-weight:900">⚠️ সাবধান! লোগো দ্রুত নামবে</span>
+      `;
+      btnMain.innerText = "খেলা শুরু করুন";
+      btnMain.onclick = start;
+      btnClose.innerText = "Close";
+      btnClose.onclick = hide;
+    }
 
-  timeEl.innerText="00:00";
-  nextSpawn=startTime+700;
-}
+    if(kind==="paused"){
+      title.innerText = "Paused";
+      body.innerHTML = `<b>Pause করা আছে।</b><br>Resume করতে নিচের বাটনে চাপুন।`;
+      btnMain.innerText = "Resume";
+      btnMain.onclick = resume;
+      btnClose.innerText = "Close";
+      btnClose.onclick = hide;
+    }
 
-function start(){
-  reset();
-  state="playing";
-  btnPause.innerText="Pause";
-  hide();
-}
+    if(kind==="over"){
+      modal.style.borderColor = "#d32f2f";
+      title.style.color = "#d32f2f";
 
-function pause(){
-  if(state!=="playing")return;
-  state="paused";
-  btnPause.innerText="Resume";
-  show("paused");
-}
+      title.innerText = "খেলা শেষ!";
+      body.innerHTML = `
+        <div style="font-size:18px;font-weight:900;margin-top:6px;">
+          ছাত্রলীগ আম্মারকে ধরে ফেলেছে
+        </div>
+        <div style="font-size:18px;font-weight:900;margin-top:10px;">
+          আপনার স্কোর: <span style="color:#d32f2f">${score}</span>
+        </div>
+      `;
 
-function resume(){
-  if(state!=="paused")return;
-  state="playing";
-  last=performance.now();
-  btnPause.innerText="Pause";
-  hide();
-}
+      btnMain.innerText = "আবার খেলুন";
+      btnMain.onclick = start;
 
-function over(){
-  if(state==="over")return;
-  state="over";
-  show("over");
-}
+      btnClose.innerText = "ফলো করুন";
+      btnClose.onclick = () => {
+        // ✅ এখানে তোমার ফেসবুক/টেলিগ্রাম লিংক বসাও
+        window.open("https://facebook.com", "_blank");
+      };
+    }
+  }
 
-/* Drag */
-game.addEventListener("pointerdown",e=>{
-  drag=true;
-  move(e.clientX);
-});
+  function hide(){ overlay.style.display = "none"; }
 
-game.addEventListener("pointermove",e=>{
-  if(!drag)return;
-  move(e.clientX);
-});
+  function reset(){
+    // return enemies to pool
+    for(const o of enemies){
+      o.el.style.display = "none";
+      POOL.push(o.el);
+    }
+    enemies = [];
 
-game.addEventListener("pointerup",()=>drag=false);
+    score = 0;
+    scoreEl.innerText = "0";
+    timeEl.innerText  = "00:00";
 
-function move(x){
-  const r=game.getBoundingClientRect();
-  let p=x-r.left;
+    startTime = performance.now();
+    last = startTime;
+    nextSpawn = startTime + 700;
 
-  p=Math.max(40,Math.min(r.width-40,p));
-  player.style.left=p+"px";
-}
+    centerPlayer();
+  }
 
-/* Enemies */
-function spawn(){
-  const el=document.createElement("div");
-  el.className="enemy";
+  function start(){
+    reset();
+    state = "playing";
+    btnPause.innerText = "Pause";
+    hide();
+  }
 
-  const x=Math.random()*(game.clientWidth-55);
+  function pause(){
+    if(state!=="playing") return;
+    state = "paused";
+    btnPause.innerText = "Resume";
+    show("paused");
+  }
 
-  game.appendChild(el);
+  function resume(){
+    if(state!=="paused") return;
+    state = "playing";
+    last = performance.now();
+    btnPause.innerText = "Pause";
+    hide();
+  }
 
-  enemies.push({
-    el,
-    x,
-    y:-60,
-    speed:220+score*10
+  function over(){
+    if(state==="over") return;
+    state = "over";
+    show("over");
+  }
+
+  function togglePause(){
+    if(state==="playing") pause();
+    else if(state==="paused") resume();
+  }
+
+  // ===== Pointer Drag (smooth) =====
+  function move(clientX){
+    const r = game.getBoundingClientRect(); // ✅ only during input, not per frame
+    const x = clientX - r.left - PLAYER_W/2;
+    setPlayerX(x);
+  }
+
+  game.addEventListener("pointerdown",(e)=>{
+    if(state==="over") return;
+    drag = true;
+    try{ game.setPointerCapture(e.pointerId); }catch{}
+    move(e.clientX);
+  },{passive:false});
+
+  game.addEventListener("pointermove",(e)=>{
+    if(!drag) return;
+    e.preventDefault();
+    move(e.clientX);
+  },{passive:false});
+
+  game.addEventListener("pointerup",()=>drag=false);
+  game.addEventListener("pointercancel",()=>drag=false);
+
+  // ===== Enemy pooling + fast collision =====
+  function getEnemyEl(){
+    const el = POOL.pop();
+    if(el) return el;
+    const n = document.createElement("div");
+    n.className = "enemy";
+    game.appendChild(n);
+    return n;
+  }
+
+  function spawn(){
+    const el = getEnemyEl();
+    el.style.display = "block";
+
+    const x = Math.random() * (game.clientWidth - ENEMY_W);
+    enemies.push({
+      el,
+      x,
+      y: -ENEMY_H,
+      speed: 260 + score*14
+    });
+  }
+
+  function hitFast(px, py, ex, ey){
+    return !(px + PLAYER_W < ex || px > ex + ENEMY_W ||
+             py + PLAYER_H < ey || py > ey + ENEMY_H);
+  }
+
+  // ===== Main loop (no rect per enemy) =====
+  function loop(t){
+    requestAnimationFrame(loop);
+    if(state!=="playing") return;
+
+    const dt = Math.min(0.033, (t-last)/1000);
+    last = t;
+
+    timeEl.innerText = timeFmt((t-startTime)/1000);
+
+    if(t > nextSpawn){
+      spawn();
+      nextSpawn = t + Math.max(340, 980 - score*6);
+    }
+
+    const py = playerY();
+
+    for(let i=enemies.length-1;i>=0;i--){
+      const o = enemies[i];
+
+      o.y += o.speed * dt;
+      o.el.style.transform = `translate3d(${o.x}px,${o.y}px,0)`;
+
+      if(hitFast(playerX, py, o.x, o.y)){
+        over();
+        return;
+      }
+
+      if(o.y > game.clientHeight + 140){
+        o.el.style.display = "none";
+        POOL.push(o.el);
+        enemies.splice(i,1);
+
+        score++;
+        scoreEl.innerText = String(score);
+      }
+    }
+  }
+
+  // ===== Share =====
+  btnShare.onclick = async () => {
+    const u = new URL(location.href);
+    u.search = ""; u.hash = "";
+    const url = u.toString();
+    const text = `আমি ${score} স্কোর করেছি! তুমি পারবে?`;
+
+    if(navigator.share){
+      try{ await navigator.share({ title: document.title, text, url }); return; }catch{}
+    }
+    window.open(`https://wa.me/?text=${encodeURIComponent(text+" "+url)}`, "_blank");
+  };
+
+  // ===== Buttons =====
+  btnStart.onclick = start;
+  btnPause.onclick = togglePause;
+  btnMain.onclick  = start;
+  btnClose.onclick = hide;
+
+  // init
+  centerPlayer();
+  show("menu");
+  requestAnimationFrame((t)=>{ last=t; loop(t); });
+
+  // ✅ if orientation changes, keep centered
+  window.addEventListener("resize", () => {
+    if(state !== "playing") centerPlayer();
   });
-}
-
-function hit(a,b){
-  return !(a.right<b.left||a.left>b.right||
-           a.bottom<b.top||a.top>b.bottom);
-}
-
-/* Loop */
-function loop(t){
-
-  requestAnimationFrame(loop);
-
-  if(state!=="playing")return;
-
-  const dt=Math.min(.03,(t-last)/1000);
-  last=t;
-
-  timeEl.innerText=timeFmt((t-startTime)/1000);
-
-  if(t>nextSpawn){
-    spawn();
-    nextSpawn=t+Math.max(400,1100-score*6);
-  }
-
-  const pr=player.getBoundingClientRect();
-
-  for(let i=enemies.length-1;i>=0;i--){
-
-    let o=enemies[i];
-
-    o.y+=o.speed*dt;
-
-    o.el.style.transform=
-      `translate(${o.x}px,${o.y}px)`;
-
-    const er=o.el.getBoundingClientRect();
-
-    if(hit(pr,er)){
-      over();
-      return;
-    }
-
-    if(o.y>window.innerHeight){
-      o.el.remove();
-      enemies.splice(i,1);
-      score++;
-      scoreEl.innerText=score;
-    }
-  }
-}
-
-requestAnimationFrame(t=>{last=t;loop(t)});
-
-/* Share */
-btnShare.onclick=()=>{
-  const text=`আমি ${score} স্কোর করেছি!`;
-  const url=location.href;
-
-  if(navigator.share)
-    navigator.share({text,url});
-  else
-    window.open(`https://wa.me/?text=${encodeURIComponent(text+" "+url)}`);
-};
-
-/* Buttons */
-btnStart.onclick=start;
-btnPause.onclick=()=>state==="paused"?resume():pause();
-btnMain.onclick=start;
-btnClose.onclick=hide;
-
-/* Init */
-show("menu");
 </script>
 
 </body>
