@@ -8,478 +8,511 @@
 <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-  :root { --bg:#fcf9c5; }
+:root{ --bg:#fcf9c5; }
 
-  body{
-    margin:0;
-    font-family:'Hind Siliguri',system-ui,sans-serif;
-    background:var(--bg);
-    overflow:hidden;
+body{
+  margin:0;
+  font-family:'Hind Siliguri',system-ui,sans-serif;
+  background:var(--bg);
+  overflow:hidden;
 
-    position: fixed;
-    width:100%;
-    overscroll-behavior:none;
-    touch-action:none;
-  }
+  position:fixed;
+  width:100%;
+  overscroll-behavior:none;
+  touch-action:none;
+}
 
-  #game{
-    position:relative;
-    max-width:450px;
-    height:100svh;
-    min-height:100vh;
-    margin:0 auto;
-    background:var(--bg);
-    overflow:hidden;
+/* Game Area */
+#game{
+  position:relative;
+  max-width:450px;
+  height:100svh;
+  min-height:100vh;
+  margin:0 auto;
+  background:var(--bg);
+  overflow:hidden;
 
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-  }
+  transform:translateZ(0);
+  contain:layout paint;
+}
 
-  #hud{
-    position:fixed;
-    top:14px;
-    left:50%;
-    transform:translateX(-50%);
-    display:flex;
-    gap:8px;
-    align-items:center;
-    background:#fff9c4;
-    border:2px solid #e0cf8d;
-    padding:10px 10px;
-    border-radius:16px;
-    z-index:1000;
-    font-weight:900;
-    box-shadow:0 6px 16px rgba(0,0,0,.10);
-    user-select:none;
-  }
+/* HUD */
+#hud{
+  position:fixed;
+  top:14px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  gap:8px;
+  align-items:center;
+  background:#fff9c4;
+  border:2px solid #e0cf8d;
+  padding:10px;
+  border-radius:16px;
+  z-index:1000;
+  font-weight:900;
+  box-shadow:0 6px 16px rgba(0,0,0,.10);
+  user-select:none;
+}
 
-  .pill{
-    background:#fff;
-    padding:6px 10px;
-    border-radius:12px;
-    font-size:13px;
-    color:#222;
-    min-width:80px;
-    text-align:left;
-    box-shadow: inset 0 0 0 1px rgba(0,0,0,.04);
-  }
+.pill{
+  background:#fff;
+  padding:6px 10px;
+  border-radius:12px;
+  font-size:13px;
+  color:#222;
+  min-width:80px;
+}
 
-  .btn{
-    border:none;
-    border-radius:12px;
-    padding:8px 12px;
-    font-weight:900;
-    color:white;
-    cursor:pointer;
-    box-shadow:0 4px 12px rgba(0,0,0,.12);
-  }
-  .btn:active{ transform:scale(.98); }
-  .start{background:#5c8aff;}
-  .pause{background:#777;}
-  .share{background:#33a853;}
+.btn{
+  border:none;
+  border-radius:12px;
+  padding:8px 12px;
+  font-weight:900;
+  color:white;
+  cursor:pointer;
+  box-shadow:0 4px 12px rgba(0,0,0,.12);
+}
+.btn:active{transform:scale(.98);}
 
-  #player{
-    position:absolute;
-    bottom:140px;
-    left:0;
-    width:80px;
-    height:80px;
-    background:url('ammar.png') no-repeat center/contain;
-    pointer-events:none;
-    z-index:10;
-    will-change: transform;
-    transform: translate3d(0,0,0);
-  }
+.start{background:#5c8aff;}
+.pause{background:#777;}
+.share{background:#33a853;}
 
-  .enemy{
-    position:absolute;
-    left:0; top:0;
-    width:55px;
-    height:55px;
-    background:url('bcl.png') no-repeat center/contain;
-    pointer-events:none;
-    z-index:9;
-    will-change: transform;
-    transform: translate3d(0,0,0);
-  }
+/* Player */
+#player{
+  position:absolute;
+  bottom:140px;
+  left:0;
+  width:80px;
+  height:80px;
+  background:url('ammar.png') no-repeat center/contain;
+  pointer-events:none;
+  z-index:10;
 
-  #overlay{
-    position:absolute;
-    inset:0;
-    background:rgba(0,0,0,.40);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    z-index:2000;
-    padding:16px;
-  }
+  will-change:transform;
+  transform:translate3d(0,0,0);
+  backface-visibility:hidden;
+  transform-origin:0 0;
+}
 
-  #modal{
-    width:88%;
-    max-width:420px;
-    background:white;
-    border-radius:20px;
-    padding:20px 18px;
-    text-align:center;
-    border:4px solid #2e7d32;
-    box-shadow:0 14px 34px rgba(0,0,0,.28);
-  }
+/* Enemy */
+.enemy{
+  position:absolute;
+  left:0;
+  top:0;
+  width:55px;
+  height:55px;
+  background:url('bcl.png') no-repeat center/contain;
+  pointer-events:none;
+  z-index:9;
 
-  #modal h2{
-    margin:0;
-    font-size:22px;
-    font-weight:900;
-    color:#2e7d32;
-    line-height:1.2;
-  }
+  will-change:transform;
+  transform:translate3d(0,0,0);
+  backface-visibility:hidden;
+  transform-origin:0 0;
+}
 
-  #modal .text{
-    text-align:left;
-    font-weight:800;
-    line-height:1.6;
-    margin:12px 0;
-    color:#222;
-    font-size:15px;
-  }
+/* Overlay */
+#overlay{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.4);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:2000;
+  padding:16px;
+}
 
-  .bigbtn{
-    width:100%;
-    padding:12px;
-    border:none;
-    border-radius:12px;
-    margin:8px 0 0;
-    font-size:18px;
-    font-weight:900;
-    cursor:pointer;
-    color:white;
-  }
+#modal{
+  width:88%;
+  max-width:420px;
+  background:white;
+  border-radius:20px;
+  padding:20px;
+  text-align:center;
+  border:4px solid #2e7d32;
+  box-shadow:0 14px 34px rgba(0,0,0,.28);
+}
 
-  .green{background:#33a853;}
-  .gray{background:rgba(0,0,0,.10); color:#222;}
+#modal h2{
+  margin:0;
+  font-size:22px;
+  font-weight:900;
+  color:#2e7d32;
+}
 
-  #credit{
-    position:absolute;
-    bottom:8px;
-    left:50%;
-    transform:translateX(-50%);
-    font-size:12px;
-    font-weight:900;
-    color:#333;
-    opacity:.75;
-    z-index:50;
-    white-space:nowrap;
-  }
+#modal .text{
+  text-align:left;
+  font-weight:800;
+  line-height:1.6;
+  margin:12px 0;
+  color:#222;
+  font-size:15px;
+}
+
+.bigbtn{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  margin:8px 0 0;
+  font-size:18px;
+  font-weight:900;
+  cursor:pointer;
+  color:white;
+}
+
+.green{background:#33a853;}
+.gray{background:rgba(0,0,0,.1);color:#222;}
+
+/* Credit */
+#credit{
+  position:fixed;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:max(8px,env(safe-area-inset-bottom));
+  font-size:12px;
+  font-weight:900;
+  color:#333;
+  opacity:.8;
+  z-index:1200;
+  white-space:nowrap;
+  text-align:center;
+}
 </style>
 </head>
 
 <body>
 <div id="game">
 
-  <div id="hud">
-    <div class="pill">Score: <span id="score">0</span></div>
-    <div class="pill">Time: <span id="time">00:00</span></div>
-    <button class="btn start" id="btnStart">Start</button>
-    <button class="btn pause" id="btnPause">Pause</button>
-    <button class="btn share" id="btnShare">Share</button>
-  </div>
+<div id="hud">
+  <div class="pill">Score: <span id="score">0</span></div>
+  <div class="pill">Time: <span id="time">00:00</span></div>
 
-  <div id="player"></div>
+  <button class="btn start" id="btnStart">Start</button>
+  <button class="btn pause" id="btnPause">Pause</button>
+  <button class="btn share" id="btnShare">Share</button>
+</div>
 
-  <div id="overlay">
-    <div id="modal">
-      <h2 id="title">ছাত্রলীগের হাত থেকে আম্মারকে বাঁচান</h2>
+<div id="player"></div>
 
-      <div class="text" id="body">
-        <b>খেলার নিয়ম:</b><br>
-        ১) আঙুল টেনে আম্মারকে ডানে-বামে নড়ান<br>
-        ২) উপরে থেকে পড়া ছাত্রলীগের লোগো এড়ান<br>
-        ৩) লোগোতে ধাক্কা লাগলে খেলা শেষ<br>
-        ৪) যত বাঁচবেন, স্কোর তত বাড়বে<br>
-        <span style="color:#d32f2f;font-weight:900">⚠️ সাবধান! লোগো দ্রুত নামবে</span>
-      </div>
+<div id="overlay">
+  <div id="modal">
+    <h2 id="title">ছাত্রলীগের হাত থেকে আম্মারকে বাঁচান</h2>
 
-      <button class="bigbtn green" id="btnMain">খেলা শুরু করুন</button>
-      <button class="bigbtn gray" id="btnClose">Close</button>
+    <div class="text" id="body">
+      <b>খেলার নিয়ম:</b><br>
+      ১) আঙুল টেনে আম্মারকে নড়ান<br>
+      ২) লোগো এড়ান<br>
+      ৩) লাগলে খেলা শেষ<br>
+      ৪) যত বাঁচবেন স্কোর বাড়বে<br>
+      <span style="color:red">⚠️ সাবধান!</span>
     </div>
-  </div>
 
-  <div id="credit">Developed by রাজশাহী বিশ্ববিদ্যালয় ছাত্রলীগ</div>
+    <button class="bigbtn green" id="btnMain">খেলা শুরু করুন</button>
+    <button class="bigbtn gray" id="btnClose">Close</button>
+  </div>
+</div>
+
+<div id="credit">Developed by রাজশাহী বিশ্ববিদ্যালয় ছাত্রলীগ</div>
+
 </div>
 
 <script>
-  const game = document.getElementById("game");
-  const playerEl = document.getElementById("player");
+const game=document.getElementById("game");
+const player=document.getElementById("player");
 
-  const scoreEl = document.getElementById("score");
-  const timeEl  = document.getElementById("time");
+const scoreEl=document.getElementById("score");
+const timeEl=document.getElementById("time");
 
-  const overlay = document.getElementById("overlay");
-  const modal = document.getElementById("modal");
-  const title = document.getElementById("title");
-  const body  = document.getElementById("body");
+const overlay=document.getElementById("overlay");
+const modal=document.getElementById("modal");
+const title=document.getElementById("title");
+const body=document.getElementById("body");
 
-  const btnMain  = document.getElementById("btnMain");
-  const btnClose = document.getElementById("btnClose");
+const btnMain=document.getElementById("btnMain");
+const btnClose=document.getElementById("btnClose");
 
-  const btnStart = document.getElementById("btnStart");
-  const btnPause = document.getElementById("btnPause");
-  const btnShare = document.getElementById("btnShare");
+const btnStart=document.getElementById("btnStart");
+const btnPause=document.getElementById("btnPause");
+const btnShare=document.getElementById("btnShare");
 
-  let state = "menu"; // menu | playing | paused | over
-  let score = 0;
+let state="menu";
+let score=0;
 
-  let startTime = 0;
-  let last = 0;
+let startTime=0;
+let last=0;
 
-  const PLAYER_W = 80, PLAYER_H = 80;
-  const ENEMY_W  = 55, ENEMY_H  = 55;
+const PLAYER_W=80, PLAYER_H=80;
+const ENEMY_W=55, ENEMY_H=55;
 
-  let playerX = 0;
-  let drag = false;
+let playerX=0;
+let drag=false;
 
-  let enemies = [];
-  let nextSpawn = 0;
+let enemies=[];
+let nextSpawn=0;
 
-  const POOL = [];
+const POOL=[];
 
-  function timeFmt(sec){
-    sec = Math.max(0, sec|0);
-    return String(Math.floor(sec/60)).padStart(2,"0")+":"+
-           String(sec%60).padStart(2,"0");
+/* Utils */
+function fmt(s){
+  s=Math.max(0,s|0);
+  return String(Math.floor(s/60)).padStart(2,"0")+":"+
+         String(s%60).padStart(2,"0");
+}
+
+function playerY(){
+  return game.clientHeight-140-PLAYER_H;
+}
+
+function setPlayerX(x){
+  const w=game.clientWidth;
+  playerX=Math.max(0,Math.min(w-PLAYER_W,x));
+  player.style.transform=
+    `translate3d(${Math.round(playerX)}px,0,0)`;
+}
+
+function centerPlayer(){
+  setPlayerX((game.clientWidth-PLAYER_W)/2);
+}
+
+/* Overlay */
+function show(type){
+  overlay.style.display="flex";
+
+  modal.style.borderColor="#2e7d32";
+  title.style.color="#2e7d32";
+
+  if(type==="menu"){
+    title.innerText="ছাত্রলীগের হাত থেকে আম্মারকে বাঁচান";
+
+    body.innerHTML=`
+      <b>খেলার নিয়ম:</b><br>
+      ১) আঙুল টেনে আম্মারকে নড়ান<br>
+      ২) লোগো এড়ান<br>
+      ৩) লাগলে খেলা শেষ<br>
+      ৪) যত বাঁচবেন স্কোর বাড়বে<br>
+      <span style="color:red">⚠️ সাবধান!</span>
+    `;
+
+    btnMain.innerText="খেলা শুরু করুন";
+    btnMain.onclick=startGame;
+
+    btnClose.innerText="Close";
+    btnClose.onclick=hide;
   }
 
-  function playerY(){
-    return game.clientHeight - 140 - PLAYER_H;
+  if(type==="paused"){
+    title.innerText="Paused";
+    body.innerHTML="Resume করতে নিচের বাটনে চাপুন";
+
+    btnMain.innerText="Resume";
+    btnMain.onclick=resumeGame;
+
+    btnClose.innerText="Close";
+    btnClose.onclick=hide;
   }
 
-  function setPlayerX(x){
-    const w = game.clientWidth;
-    playerX = Math.max(0, Math.min(w - PLAYER_W, x));
-    playerEl.style.transform = `translate3d(${playerX}px,0,0)`;
+  if(type==="over"){
+    modal.style.borderColor="#d32f2f";
+    title.style.color="#d32f2f";
+
+    title.innerText="খেলা শেষ!";
+
+    body.innerHTML=`
+      <b>ছাত্রলীগ আম্মারকে ধরে ফেলেছে</b><br><br>
+      আপনার স্কোর:
+      <span style="color:red">${score}</span>
+    `;
+
+    btnMain.innerText="আবার খেলুন";
+    btnMain.onclick=startGame;
+
+    btnClose.innerText="ফলো করুন";
+    btnClose.onclick=()=>{
+      window.open("https://facebook.com","_blank");
+    };
   }
+}
 
-  function centerPlayer(){
-    setPlayerX((game.clientWidth - PLAYER_W)/2);
+function hide(){ overlay.style.display="none"; }
+
+/* Game */
+function reset(){
+  for(const o of enemies){
+    o.el.style.visibility="hidden";
+    POOL.push(o.el);
   }
+  enemies=[];
 
-  function show(kind){
-    overlay.style.display = "flex";
-    btnMain.style.display = "block";
-    btnClose.style.display = "block";
+  score=0;
+  scoreEl.innerText="0";
+  timeEl.innerText="00:00";
 
-    modal.style.borderColor = "#2e7d32";
-    title.style.color = "#2e7d32";
-
-    if(kind==="menu"){
-      title.innerText = "ছাত্রলীগের হাত থেকে আম্মারকে বাঁচান";
-      body.innerHTML = `
-        <b>খেলার নিয়ম:</b><br>
-        ১) আঙুল টেনে আম্মারকে ডানে-বামে নড়ান<br>
-        ২) উপরে থেকে পড়া ছাত্রলীগের লোগো এড়ান<br>
-        ৩) লোগোতে ধাক্কা লাগলে খেলা শেষ<br>
-        ৪) যত বাঁচবেন, স্কোর তত বাড়বে<br>
-        <span style="color:#d32f2f;font-weight:900">⚠️ সাবধান! লোগো দ্রুত নামবে</span>
-      `;
-      btnMain.innerText = "খেলা শুরু করুন";
-      btnMain.onclick = startGame;
-      btnClose.innerText = "Close";
-      btnClose.onclick = hide;
-    }
-
-    if(kind==="paused"){
-      title.innerText = "Paused";
-      body.innerHTML = `<b>Pause করা আছে।</b><br>Resume করতে নিচের বাটনে চাপুন।`;
-      btnMain.innerText = "Resume";
-      btnMain.onclick = resumeGame;
-      btnClose.innerText = "Close";
-      btnClose.onclick = hide;
-    }
-
-    if(kind==="over"){
-      modal.style.borderColor = "#d32f2f";
-      title.style.color = "#d32f2f";
-
-      title.innerText = "খেলা শেষ!";
-      body.innerHTML = `
-        <div style="font-size:18px;font-weight:900;margin-top:6px;">
-          ছাত্রলীগ আম্মারকে ধরে ফেলেছে
-        </div>
-        <div style="font-size:18px;font-weight:900;margin-top:10px;">
-          আপনার স্কোর: <span style="color:#d32f2f">${score}</span>
-        </div>
-      `;
-
-      btnMain.innerText = "আবার খেলুন";
-      btnMain.onclick = startGame;
-
-      btnClose.innerText = "ফলো করুন";
-      btnClose.onclick = () => window.open("https://facebook.com","_blank");
-    }
-  }
-
-  function hide(){ overlay.style.display = "none"; }
-
-  function reset(){
-    for(const o of enemies){
-      o.el.style.display = "none";
-      POOL.push(o.el);
-    }
-    enemies = [];
-
-    score = 0;
-    scoreEl.innerText = "0";
-    timeEl.innerText  = "00:00";
-
-    startTime = performance.now();
-    last = startTime;
-    nextSpawn = startTime + 700;
-
-    centerPlayer();
-  }
-
-  function startGame(){
-    reset();
-    state = "playing";
-    btnPause.innerText = "Pause";
-    hide();
-  }
-
-  function pauseGame(){
-    if(state!=="playing") return;
-    state = "paused";
-    btnPause.innerText = "Resume";
-    show("paused");
-  }
-
-  function resumeGame(){
-    if(state!=="paused") return;
-    state = "playing";
-    last = performance.now();
-    btnPause.innerText = "Pause";
-    hide();
-  }
-
-  function overGame(){
-    if(state==="over") return;
-    state = "over";
-    show("over");
-  }
-
-  function togglePause(){
-    if(state==="playing") pauseGame();
-    else if(state==="paused") resumeGame();
-  }
-
-  function move(clientX){
-    const r = game.getBoundingClientRect();
-    const x = clientX - r.left - PLAYER_W/2;
-    setPlayerX(x);
-  }
-
-  game.addEventListener("pointerdown",(e)=>{
-    if(state==="over") return;
-    drag = true;
-    try{ game.setPointerCapture(e.pointerId); }catch{}
-    move(e.clientX);
-  },{passive:false});
-
-  game.addEventListener("pointermove",(e)=>{
-    if(!drag) return;
-    e.preventDefault();
-    move(e.clientX);
-  },{passive:false});
-
-  game.addEventListener("pointerup",()=>drag=false);
-  game.addEventListener("pointercancel",()=>drag=false);
-
-  function getEnemyEl(){
-    const el = POOL.pop();
-    if(el) return el;
-    const n = document.createElement("div");
-    n.className = "enemy";
-    game.appendChild(n);
-    return n;
-  }
-
-  function spawnEnemy(){
-    const el = getEnemyEl();
-    el.style.display = "block";
-
-    const x = Math.random() * (game.clientWidth - ENEMY_W);
-    enemies.push({
-      el,
-      x,
-      y: -ENEMY_H,
-      speed: 260 + score*14
-    });
-  }
-
-  function hitFast(px, py, ex, ey){
-    return !(px + PLAYER_W < ex || px > ex + ENEMY_W ||
-             py + PLAYER_H < ey || py > ey + ENEMY_H);
-  }
-
-  function loop(t){
-    requestAnimationFrame(loop);
-    if(state!=="playing") return;
-
-    const dt = Math.min(0.033, (t-last)/1000);
-    last = t;
-
-    timeEl.innerText = timeFmt((t-startTime)/1000);
-
-    if(t > nextSpawn){
-      spawnEnemy();
-      nextSpawn = t + Math.max(340, 980 - score*6);
-    }
-
-    const py = playerY();
-
-    for(let i=enemies.length-1;i>=0;i--){
-      const o = enemies[i];
-      o.y += o.speed * dt;
-      o.el.style.transform = `translate3d(${o.x}px,${o.y}px,0)`;
-
-      if(hitFast(playerX, py, o.x, o.y)){
-        overGame();
-        return;
-      }
-
-      if(o.y > game.clientHeight + 140){
-        o.el.style.display = "none";
-        POOL.push(o.el);
-        enemies.splice(i,1);
-
-        score++;
-        scoreEl.innerText = String(score);
-      }
-    }
-  }
-
-  btnShare.onclick = async () => {
-    const u = new URL(location.href);
-    u.search = ""; u.hash = "";
-    const url = u.toString();
-    const text = `আমি ${score} স্কোর করেছি! তুমি পারবে?`;
-
-    if(navigator.share){
-      try{ await navigator.share({ title: document.title, text, url }); return; }catch{}
-    }
-    window.open(`https://wa.me/?text=${encodeURIComponent(text+" "+url)}`, "_blank");
-  };
-
-  btnStart.onclick = startGame;
-  btnPause.onclick = togglePause;
-  btnMain.onclick  = startGame;
-  btnClose.onclick = hide;
+  startTime=performance.now();
+  last=startTime;
+  nextSpawn=startTime+700;
 
   centerPlayer();
-  show("menu");
-  requestAnimationFrame((t)=>{ last=t; loop(t); });
+}
 
-  window.addEventListener("resize", () => {
-    if(state !== "playing") centerPlayer();
+function startGame(){
+  reset();
+  state="playing";
+  btnPause.innerText="Pause";
+  hide();
+}
+
+function pauseGame(){
+  if(state!=="playing")return;
+  state="paused";
+  btnPause.innerText="Resume";
+  show("paused");
+}
+
+function resumeGame(){
+  if(state!=="paused")return;
+  state="playing";
+  last=performance.now();
+  btnPause.innerText="Pause";
+  hide();
+}
+
+function gameOver(){
+  if(state==="over")return;
+  state="over";
+  show("over");
+}
+
+function togglePause(){
+  if(state==="playing")pauseGame();
+  else if(state==="paused")resumeGame();
+}
+
+/* Drag */
+function move(x){
+  const r=game.getBoundingClientRect();
+  setPlayerX(x-r.left-PLAYER_W/2);
+}
+
+game.addEventListener("pointerdown",e=>{
+  drag=true;
+  try{game.setPointerCapture(e.pointerId);}catch{}
+  move(e.clientX);
+},{passive:false});
+
+game.addEventListener("pointermove",e=>{
+  if(!drag)return;
+  e.preventDefault();
+  move(e.clientX);
+},{passive:false});
+
+game.addEventListener("pointerup",()=>drag=false);
+game.addEventListener("pointercancel",()=>drag=false);
+
+/* Enemies */
+function getEnemy(){
+  const el=POOL.pop();
+  if(el)return el;
+
+  const n=document.createElement("div");
+  n.className="enemy";
+  game.appendChild(n);
+  return n;
+}
+
+function spawn(){
+  const el=getEnemy();
+  el.style.visibility="visible";
+
+  const x=Math.random()*(game.clientWidth-ENEMY_W);
+
+  enemies.push({
+    el,
+    x,
+    y:-ENEMY_H,
+    speed:260+score*14
   });
+}
+
+function hit(px,py,ex,ey){
+  return !(px+PLAYER_W<ex||px>ex+ENEMY_W||
+           py+PLAYER_H<ey||py>ey+ENEMY_H);
+}
+
+/* Loop */
+function loop(t){
+  requestAnimationFrame(loop);
+
+  if(state!=="playing")return;
+
+  const dt=Math.min(.033,(t-last)/1000);
+  last=t;
+
+  timeEl.innerText=fmt((t-startTime)/1000);
+
+  if(t>nextSpawn){
+    spawn();
+    nextSpawn=t+Math.max(340,980-score*6);
+  }
+
+  const py=playerY();
+
+  for(let i=enemies.length-1;i>=0;i--){
+
+    const o=enemies[i];
+    o.y+=o.speed*dt;
+
+    o.el.style.transform=
+      `translate3d(${Math.round(o.x)}px,${Math.round(o.y)}px,0)`;
+
+    if(hit(playerX,py,o.x,o.y)){
+      gameOver();
+      return;
+    }
+
+    if(o.y>game.clientHeight+140){
+      o.el.style.visibility="hidden";
+      POOL.push(o.el);
+      enemies.splice(i,1);
+
+      score++;
+      scoreEl.innerText=score;
+    }
+  }
+}
+
+/* Share */
+btnShare.onclick=()=>{
+  const text=`আমি ${score} স্কোর করেছি!`;
+  const url=location.href;
+
+  if(navigator.share)
+    navigator.share({text,url});
+  else
+    window.open(`https://wa.me/?text=${encodeURIComponent(text+" "+url)}`);
+};
+
+/* Buttons */
+btnStart.onclick=startGame;
+btnPause.onclick=togglePause;
+btnMain.onclick=startGame;
+btnClose.onclick=hide;
+
+/* Init */
+centerPlayer();
+show("menu");
+
+requestAnimationFrame(t=>{
+  last=t;
+  loop(t);
+});
+
+window.addEventListener("resize",()=>{
+  if(state!=="playing")centerPlayer();
+});
 </script>
 
 </body>
