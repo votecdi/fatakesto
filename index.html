@@ -16,14 +16,12 @@
     background:var(--bg);
     overflow:hidden;
 
-    /* ✅ mobile jitter fix */
     position: fixed;
     width:100%;
     overscroll-behavior:none;
     touch-action:none;
   }
 
-  /* ✅ stable viewport height on mobile */
   #game{
     position:relative;
     max-width:450px;
@@ -37,9 +35,8 @@
     -webkit-transform: translateZ(0);
   }
 
-  /* HUD */
   #hud{
-    position:fixed; /* ✅ stop shaking */
+    position:fixed;
     top:14px;
     left:50%;
     transform:translateX(-50%);
@@ -81,22 +78,19 @@
   .pause{background:#777;}
   .share{background:#33a853;}
 
-  /* Player */
   #player{
     position:absolute;
     bottom:140px;
-    left:0; /* we will move using transform */
+    left:0;
     width:80px;
     height:80px;
     background:url('ammar.png') no-repeat center/contain;
     pointer-events:none;
     z-index:10;
-
     will-change: transform;
     transform: translate3d(0,0,0);
   }
 
-  /* Enemy */
   .enemy{
     position:absolute;
     left:0; top:0;
@@ -105,12 +99,10 @@
     background:url('bcl.png') no-repeat center/contain;
     pointer-events:none;
     z-index:9;
-
     will-change: transform;
     transform: translate3d(0,0,0);
   }
 
-  /* Overlay */
   #overlay{
     position:absolute;
     inset:0;
@@ -163,7 +155,6 @@
   }
 
   .green{background:#33a853;}
-  .blue{background:#5c8aff;}
   .gray{background:rgba(0,0,0,.10); color:#222;}
 
   #credit{
@@ -216,7 +207,6 @@
 </div>
 
 <script>
-  // ===== DOM =====
   const game = document.getElementById("game");
   const playerEl = document.getElementById("player");
 
@@ -235,25 +225,21 @@
   const btnPause = document.getElementById("btnPause");
   const btnShare = document.getElementById("btnShare");
 
-  // ===== State =====
   let state = "menu"; // menu | playing | paused | over
   let score = 0;
 
   let startTime = 0;
   let last = 0;
 
-  // ✅ smooth physics (no DOM rect per frame)
   const PLAYER_W = 80, PLAYER_H = 80;
   const ENEMY_W  = 55, ENEMY_H  = 55;
 
-  let playerX = 0;     // px inside game
+  let playerX = 0;
   let drag = false;
 
-  // enemies (objects)
   let enemies = [];
   let nextSpawn = 0;
 
-  // ✅ enemy pooling (reuse nodes)
   const POOL = [];
 
   function timeFmt(sec){
@@ -263,7 +249,6 @@
   }
 
   function playerY(){
-    // same as CSS: bottom:140px
     return game.clientHeight - 140 - PLAYER_H;
   }
 
@@ -282,7 +267,6 @@
     btnMain.style.display = "block";
     btnClose.style.display = "block";
 
-    // reset colors
     modal.style.borderColor = "#2e7d32";
     title.style.color = "#2e7d32";
 
@@ -297,7 +281,7 @@
         <span style="color:#d32f2f;font-weight:900">⚠️ সাবধান! লোগো দ্রুত নামবে</span>
       `;
       btnMain.innerText = "খেলা শুরু করুন";
-      btnMain.onclick = start;
+      btnMain.onclick = startGame;
       btnClose.innerText = "Close";
       btnClose.onclick = hide;
     }
@@ -306,7 +290,7 @@
       title.innerText = "Paused";
       body.innerHTML = `<b>Pause করা আছে।</b><br>Resume করতে নিচের বাটনে চাপুন।`;
       btnMain.innerText = "Resume";
-      btnMain.onclick = resume;
+      btnMain.onclick = resumeGame;
       btnClose.innerText = "Close";
       btnClose.onclick = hide;
     }
@@ -326,20 +310,16 @@
       `;
 
       btnMain.innerText = "আবার খেলুন";
-      btnMain.onclick = start;
+      btnMain.onclick = startGame;
 
       btnClose.innerText = "ফলো করুন";
-      btnClose.onclick = () => {
-        // ✅ এখানে তোমার ফেসবুক/টেলিগ্রাম লিংক বসাও
-        window.open("https://facebook.com", "_blank");
-      };
+      btnClose.onclick = () => window.open("https://facebook.com","_blank");
     }
   }
 
   function hide(){ overlay.style.display = "none"; }
 
   function reset(){
-    // return enemies to pool
     for(const o of enemies){
       o.el.style.display = "none";
       POOL.push(o.el);
@@ -357,21 +337,21 @@
     centerPlayer();
   }
 
-  function start(){
+  function startGame(){
     reset();
     state = "playing";
     btnPause.innerText = "Pause";
     hide();
   }
 
-  function pause(){
+  function pauseGame(){
     if(state!=="playing") return;
     state = "paused";
     btnPause.innerText = "Resume";
     show("paused");
   }
 
-  function resume(){
+  function resumeGame(){
     if(state!=="paused") return;
     state = "playing";
     last = performance.now();
@@ -379,20 +359,19 @@
     hide();
   }
 
-  function over(){
+  function overGame(){
     if(state==="over") return;
     state = "over";
     show("over");
   }
 
   function togglePause(){
-    if(state==="playing") pause();
-    else if(state==="paused") resume();
+    if(state==="playing") pauseGame();
+    else if(state==="paused") resumeGame();
   }
 
-  // ===== Pointer Drag (smooth) =====
   function move(clientX){
-    const r = game.getBoundingClientRect(); // ✅ only during input, not per frame
+    const r = game.getBoundingClientRect();
     const x = clientX - r.left - PLAYER_W/2;
     setPlayerX(x);
   }
@@ -413,7 +392,6 @@
   game.addEventListener("pointerup",()=>drag=false);
   game.addEventListener("pointercancel",()=>drag=false);
 
-  // ===== Enemy pooling + fast collision =====
   function getEnemyEl(){
     const el = POOL.pop();
     if(el) return el;
@@ -423,7 +401,7 @@
     return n;
   }
 
-  function spawn(){
+  function spawnEnemy(){
     const el = getEnemyEl();
     el.style.display = "block";
 
@@ -441,7 +419,6 @@
              py + PLAYER_H < ey || py > ey + ENEMY_H);
   }
 
-  // ===== Main loop (no rect per enemy) =====
   function loop(t){
     requestAnimationFrame(loop);
     if(state!=="playing") return;
@@ -452,7 +429,7 @@
     timeEl.innerText = timeFmt((t-startTime)/1000);
 
     if(t > nextSpawn){
-      spawn();
+      spawnEnemy();
       nextSpawn = t + Math.max(340, 980 - score*6);
     }
 
@@ -460,12 +437,11 @@
 
     for(let i=enemies.length-1;i>=0;i--){
       const o = enemies[i];
-
       o.y += o.speed * dt;
       o.el.style.transform = `translate3d(${o.x}px,${o.y}px,0)`;
 
       if(hitFast(playerX, py, o.x, o.y)){
-        over();
+        overGame();
         return;
       }
 
@@ -480,7 +456,6 @@
     }
   }
 
-  // ===== Share =====
   btnShare.onclick = async () => {
     const u = new URL(location.href);
     u.search = ""; u.hash = "";
@@ -493,18 +468,15 @@
     window.open(`https://wa.me/?text=${encodeURIComponent(text+" "+url)}`, "_blank");
   };
 
-  // ===== Buttons =====
-  btnStart.onclick = start;
+  btnStart.onclick = startGame;
   btnPause.onclick = togglePause;
-  btnMain.onclick  = start;
+  btnMain.onclick  = startGame;
   btnClose.onclick = hide;
 
-  // init
   centerPlayer();
   show("menu");
   requestAnimationFrame((t)=>{ last=t; loop(t); });
 
-  // ✅ if orientation changes, keep centered
   window.addEventListener("resize", () => {
     if(state !== "playing") centerPlayer();
   });
