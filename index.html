@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ammar vs BCL - The Ultimate Run</title>
+    <style>
+        :root { --gold: #FFD700; --bg: #050505; }
+        body { margin: 0; background: var(--bg); color: white; font-family: sans-serif; overflow: hidden; }
+        
+        /* গেম এরিয়া */
+        #game-box {
+            position: relative; width: 100%; max-width: 500px; height: 100vh;
+            margin: 0 auto; background: linear-gradient(180deg, #111, #000);
+            border: 2px solid #222; overflow: hidden;
+        }
+
+        /* স্কোর বোর্ড - আপনার লিঙ্কের স্টাইলে */
+        #score-container {
+            position: absolute; top: 20px; width: 100%; text-align: center; z-index: 100;
+        }
+        .score-chip {
+            background: rgba(255, 215, 0, 0.1); border: 1px solid var(--gold);
+            padding: 8px 20px; border-radius: 30px; color: var(--gold);
+            font-weight: bold; font-size: 20px;
+        }
+
+        /* আম্মার ও ছাত্রলীগ */
+        #player {
+            position: absolute; bottom: 40px; width: 90px; height: 90px;
+            background: url('ammar.png') no-repeat center; background-size: contain;
+            transition: left 0.1s ease-out; z-index: 50;
+        }
+        .enemy {
+            position: absolute; width: 70px; height: 70px;
+            background: url('bcl.png') no-repeat center; background-size: contain;
+        }
+
+        /* গেম ওভার */
+        #game-over {
+            display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.9);
+            flex-direction: column; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .btn-restart {
+            margin-top: 20px; padding: 15px 40px; background: var(--gold);
+            color: black; border: none; font-weight: bold; border-radius: 5px; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-box">
+    <div id="score-container"><span class="score-chip">Score: <span id="score">0</span></span></div>
+    <div id="player" style="left: 45%;"></div>
+    
+    <div id="game-over">
+        <h1 style="color:red">ধরা পড়েছেন!</h1>
+        <p>ছাত্রলীগ আম্মারকে ধরে ফেলেছে!</p>
+        <button class="btn-restart" onclick="location.reload()">আবার খেলুন</button>
+    </div>
+</div>
+
+<script>
+    const box = document.getElementById('game-box');
+    const player = document.getElementById('player');
+    const scoreEl = document.getElementById('score');
+    let score = 0; let isOver = false; let pX = 45;
+
+    // কন্ট্রোল
+    document.addEventListener('keydown', e => {
+        if(e.key === "ArrowLeft" && pX > 5) pX -= 15;
+        if(e.key === "ArrowRight" && pX < 85) pX += 15;
+        player.style.left = pX + "%";
+    });
+
+    function spawn() {
+        if(isOver) return;
+        const enemy = document.createElement('div');
+        enemy.className = 'enemy';
+        enemy.style.left = Math.random() * 85 + "%";
+        enemy.style.top = "-100px";
+        box.appendChild(enemy);
+
+        let eY = -100;
+        let loop = setInterval(() => {
+            if(isOver) { clearInterval(loop); enemy.remove(); return; }
+            eY += (5 + score/10); enemy.style.top = eY + "px";
+
+            let pR = player.getBoundingClientRect();
+            let eR = enemy.getBoundingClientRect();
+
+            if(pR.left < eR.right && pR.right > eR.left && pR.top < eR.bottom && pR.bottom > eR.top) {
+                isOver = true; document.getElementById('game-over').style.display = 'flex';
+            }
+            if(eY > window.innerHeight) { clearInterval(loop); enemy.remove(); score++; scoreEl.innerText = score; }
+        }, 20);
+        setTimeout(spawn, Math.max(300, 1000 - score*2));
+    }
+    spawn();
+</script>
+</body>
+</html>
