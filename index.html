@@ -4,21 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-<title>আম্মারকে বাঁচান!</title>
+<title>আম্মারকে বাঁচান</title>
 
-<!-- Font -->
 <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
 body{
   margin:0;
-  font-family:'Hind Siliguri',system-ui,sans-serif;
+  font-family:'Hind Siliguri',sans-serif;
   background:#fcf9c5;
   overflow:hidden;
 }
 
-/* Game container */
-#game-container{
+#game{
   position:relative;
   max-width:450px;
   height:100vh;
@@ -27,40 +25,41 @@ body{
   overflow:hidden;
 }
 
-/* Top HUD */
+/* HUD */
 #hud{
   position:absolute;
-  top:20px;
+  top:15px;
   left:50%;
   transform:translateX(-50%);
   display:flex;
   gap:6px;
   background:#fff9c4;
   border:2px solid #e0cf8d;
-  padding:8px 10px;
+  padding:8px;
   border-radius:14px;
-  z-index:999;
-  font-weight:700;
+  z-index:1000;
+  font-weight:800;
 }
 
 .pill{
   background:#fff;
-  padding:5px 8px;
+  padding:6px 8px;
   border-radius:10px;
   font-size:13px;
 }
 
-.hud-btn{
+.btn{
   border:none;
-  border-radius:8px;
-  padding:6px 10px;
-  font-weight:700;
-  cursor:pointer;
-  background:#5c8aff;
+  border-radius:10px;
+  padding:7px 12px;
+  font-weight:900;
   color:white;
+  cursor:pointer;
 }
-.hud-btn.pause{ background:#999; }
-.hud-btn.share{ background:#4caf50; }
+
+.start{background:#5c8aff;}
+.pause{background:#777;}
+.share{background:#33a853;}
 
 /* Player */
 #player{
@@ -95,65 +94,66 @@ body{
 #modal{
   width:85%;
   background:white;
-  border:4px solid #d32f2f;
   border-radius:18px;
   padding:20px;
   text-align:center;
+  border:4px solid #2e7d32;
 }
 
-#modal h2{color:#d32f2f;margin:0}
-#modal p{font-weight:700}
+#modal h2{
+  margin:0;
+  color:#2e7d32;
+  font-weight:900;
+}
 
-.btn{
+#modal .text{
+  text-align:left;
+  font-weight:800;
+  line-height:1.6;
+  margin:12px 0;
+  color:#222;
+}
+
+.bigbtn{
   width:100%;
   padding:12px;
-  margin:8px 0;
   border:none;
   border-radius:10px;
-  font-weight:800;
+  margin:6px 0;
+  font-size:17px;
+  font-weight:900;
   cursor:pointer;
   color:white;
 }
 
-.btn.blue{background:#5c8aff}
-.btn.gray{background:#aaa}
-.btn.green{background:#4caf50}
+.blue{background:#5c8aff;}
+.green{background:#33a853;}
+.gray{background:#ccc;color:#222;}
 
-/* Leaderboard */
-#leaderboard{
+#credit{
   position:absolute;
-  bottom:15px;
+  bottom:6px;
   left:50%;
   transform:translateX(-50%);
-  width:90%;
-  background:white;
-  border:2px solid #5c8aff;
-  border-radius:12px;
-  padding:10px;
-  text-align:center;
-}
-
-.lb-row{
-  display:flex;
-  justify-content:space-between;
-  font-weight:700;
-  font-size:14px;
+  font-size:12px;
+  font-weight:800;
+  opacity:.7;
 }
 </style>
 </head>
 
 <body>
 
-<div id="game-container">
+<div id="game">
 
 <!-- HUD -->
 <div id="hud">
   <div class="pill">Score: <span id="score">0</span></div>
   <div class="pill">Time: <span id="time">00:00</span></div>
 
-  <button class="hud-btn" id="btnStart">Start</button>
-  <button class="hud-btn pause" id="btnPause">Pause</button>
-  <button class="hud-btn share" id="btnShare">Share</button>
+  <button class="btn start" id="btnStart">Start</button>
+  <button class="btn pause" id="btnPause">Pause</button>
+  <button class="btn share" id="btnShare">Share</button>
 </div>
 
 <!-- Player -->
@@ -162,112 +162,121 @@ body{
 <!-- Overlay -->
 <div id="overlay">
   <div id="modal">
-    <h2 id="modalTitle">Ready?</h2>
-    <p id="modalText">Start চাপলে গেম শুরু হবে।</p>
+    <h2 id="title">ছাত্রলীগের হাত থেকে আম্মারকে বাঁচান</h2>
 
-    <button class="btn blue" id="btnPrimary">Start</button>
-    <button class="btn gray" id="btnClose">Close</button>
+    <div class="text" id="body">
+      <b>খেলার নিয়ম:</b><br>
+      ১) আঙুল টেনে আম্মারকে নড়ান<br>
+      ২) উপরের লোগো এড়ান<br>
+      ৩) লাগলে খেলা শেষ<br>
+      ৪) যত বাঁচবেন স্কোর বাড়বে<br>
+      <span style="color:red">⚠️ সাবধান!</span>
+    </div>
 
-    <div id="extra"></div>
+    <button class="bigbtn green" id="btnMain">খেলা শুরু করুন</button>
+    <button class="bigbtn gray" id="btnClose">Close</button>
   </div>
 </div>
 
-<!-- Leaderboard -->
-<div id="leaderboard">
-  <h3>🏆 সেরা খেলোয়াড়</h3>
-  <div id="lb"></div>
-  <small>Powered by পাতা পাটোয়ারী</small>
+<!-- Credit -->
+<div id="credit">
+  Developed by রাজশাহী বিশ্ববিদ্যালয় ছাত্রলীগ
 </div>
 
 </div>
 
 <script>
-// ===== DOM =====
-const container = document.getElementById("game-container");
+const game = document.getElementById("game");
 const player = document.getElementById("player");
 
 const scoreEl = document.getElementById("score");
-const timeEl  = document.getElementById("time");
+const timeEl = document.getElementById("time");
 
 const overlay = document.getElementById("overlay");
-const modalTitle = document.getElementById("modalTitle");
-const modalText  = document.getElementById("modalText");
-const extra = document.getElementById("extra");
+const title = document.getElementById("title");
+const body = document.getElementById("body");
 
-const btnPrimary = document.getElementById("btnPrimary");
+const btnMain = document.getElementById("btnMain");
 const btnClose = document.getElementById("btnClose");
 
 const btnStart = document.getElementById("btnStart");
 const btnPause = document.getElementById("btnPause");
 const btnShare = document.getElementById("btnShare");
 
-const lbEl = document.getElementById("lb");
-
-// ===== State =====
-let state="menu"; // menu,playing,paused,over
+let state="menu";
 let score=0;
 let startTime=0;
 let last=0;
+
 let enemies=[];
+let nextSpawn=0;
+let drag=false;
 
-const LB_KEY="ammar_lb_v1";
-
-// ===== Utils =====
-function fmt(sec){
-  return String(Math.floor(sec/60)).padStart(2,"0")+":"+
-         String(sec%60).padStart(2,"0");
+/* Utils */
+function timeFmt(s){
+  return String(Math.floor(s/60)).padStart(2,"0")+":"+
+         String(s%60).padStart(2,"0");
 }
 
-// ===== Overlay =====
-function showOverlay(type){
-
+/* Overlay */
+function show(type){
   overlay.style.display="flex";
-  extra.innerHTML="";
 
   if(type==="menu"){
-    modalTitle.innerText="Ready?";
-    modalText.innerText="Start চাপলে গেম শুরু হবে।";
+    title.innerText="ছাত্রলীগের হাত থেকে আম্মারকে বাঁচান";
 
-    btnPrimary.innerText="Start";
-    btnPrimary.onclick=startGame;
+    body.innerHTML=`
+      <b>খেলার নিয়ম:</b><br>
+      ১) আঙুল টেনে আম্মারকে নড়ান<br>
+      ২) উপরের লোগো এড়ান<br>
+      ৩) লাগলে খেলা শেষ<br>
+      ৪) যত বাঁচবেন স্কোর বাড়বে<br>
+      <span style="color:red">⚠️ সাবধান!</span>
+    `;
 
-    btnClose.style.display="block";
+    btnMain.innerText="খেলা শুরু করুন";
+    btnMain.onclick=start;
+
+    btnClose.onclick=hide;
   }
 
   if(type==="paused"){
-    modalTitle.innerText="Paused";
-    modalText.innerText="Resume করতে Pause চাপুন";
+    title.innerText="Paused";
+    body.innerHTML="Resume করতে নিচের বাটনে চাপুন";
 
-    btnPrimary.innerText="Resume";
-    btnPrimary.onclick=resumeGame;
+    btnMain.innerText="Resume";
+    btnMain.onclick=resume;
 
-    btnClose.style.display="block";
+    btnClose.onclick=hide;
   }
 
   if(type==="over"){
-    modalTitle.innerText="খেলা শেষ!";
-    modalText.innerHTML=`আপনার স্কোর: <b>${score}</b>`;
+    document.getElementById("modal").style.borderColor="#d32f2f";
+    title.style.color="#d32f2f";
 
-    btnPrimary.style.display="none";
-    btnClose.style.display="none";
+    title.innerText="খেলা শেষ!";
 
-    extra.innerHTML=`
-      <input id="name" placeholder="নাম লিখুন"><br>
-      <button class="btn green" id="save">Save Score</button>
-      <button class="btn blue" id="restart">Play Again</button>
+    body.innerHTML=`
+      <b>ছাত্রলীগ আম্মারকে ধরে ফেলেছে</b><br><br>
+      আপনার স্কোর: <span style="color:red">${score}</span>
     `;
 
-    document.getElementById("save").onclick=saveScore;
-    document.getElementById("restart").onclick=startGame;
+    btnMain.innerText="আবার খেলুন";
+    btnMain.onclick=start;
+
+    btnClose.innerText="ফলো করুন";
+    btnClose.onclick=()=>{
+      window.open("https://facebook.com","_blank");
+    };
   }
 }
 
-function hideOverlay(){
+function hide(){
   overlay.style.display="none";
 }
 
-// ===== Game control =====
-function startGame(){
+/* Game */
+function reset(){
   enemies.forEach(e=>e.el.remove());
   enemies=[];
 
@@ -277,61 +286,73 @@ function startGame(){
   startTime=performance.now();
   last=startTime;
 
+  timeEl.innerText="00:00";
+  nextSpawn=startTime+700;
+}
+
+function start(){
+  reset();
   state="playing";
   btnPause.innerText="Pause";
-
-  hideOverlay();
+  hide();
 }
 
-function pauseGame(){
+function pause(){
   if(state!=="playing")return;
-
   state="paused";
   btnPause.innerText="Resume";
-
-  showOverlay("paused");
+  show("paused");
 }
 
-function resumeGame(){
+function resume(){
   if(state!=="paused")return;
-
   state="playing";
   last=performance.now();
   btnPause.innerText="Pause";
-
-  hideOverlay();
+  hide();
 }
 
-function gameOver(){
-  state="over";
-  showOverlay("over");
-}
-
-// ===== Input =====
-container.addEventListener("pointermove",e=>{
+function over(){
   if(state==="over")return;
+  state="over";
+  show("over");
+}
 
-  const r=container.getBoundingClientRect();
-  let x=e.clientX-r.left;
-
-  x=Math.max(40,Math.min(r.width-40,x));
-  player.style.left=x+"px";
+/* Drag */
+game.addEventListener("pointerdown",e=>{
+  drag=true;
+  move(e.clientX);
 });
 
-// ===== Enemies =====
+game.addEventListener("pointermove",e=>{
+  if(!drag)return;
+  move(e.clientX);
+});
+
+game.addEventListener("pointerup",()=>drag=false);
+
+function move(x){
+  const r=game.getBoundingClientRect();
+  let p=x-r.left;
+
+  p=Math.max(40,Math.min(r.width-40,p));
+  player.style.left=p+"px";
+}
+
+/* Enemies */
 function spawn(){
   const el=document.createElement("div");
   el.className="enemy";
 
-  let x=Math.random()*(container.clientWidth-55);
+  const x=Math.random()*(game.clientWidth-55);
 
-  container.appendChild(el);
+  game.appendChild(el);
 
   enemies.push({
     el,
     x,
     y:-60,
-    speed:200+score*10
+    speed:220+score*10
   });
 }
 
@@ -340,23 +361,21 @@ function hit(a,b){
            a.bottom<b.top||a.top>b.bottom);
 }
 
-// ===== Loop =====
-let nextSpawn=0;
-
+/* Loop */
 function loop(t){
 
   requestAnimationFrame(loop);
 
   if(state!=="playing")return;
 
-  let dt=Math.min(.03,(t-last)/1000);
+  const dt=Math.min(.03,(t-last)/1000);
   last=t;
 
-  timeEl.innerText=fmt((t-startTime)/1000|0);
+  timeEl.innerText=timeFmt((t-startTime)/1000);
 
   if(t>nextSpawn){
     spawn();
-    nextSpawn=t+Math.max(400,1200-score*5);
+    nextSpawn=t+Math.max(400,1100-score*6);
   }
 
   const pr=player.getBoundingClientRect();
@@ -366,13 +385,14 @@ function loop(t){
     let o=enemies[i];
 
     o.y+=o.speed*dt;
+
     o.el.style.transform=
       `translate(${o.x}px,${o.y}px)`;
 
     const er=o.el.getBoundingClientRect();
 
     if(hit(pr,er)){
-      gameOver();
+      over();
       return;
     }
 
@@ -387,7 +407,7 @@ function loop(t){
 
 requestAnimationFrame(t=>{last=t;loop(t)});
 
-// ===== Share =====
+/* Share */
 btnShare.onclick=()=>{
   const text=`আমি ${score} স্কোর করেছি!`;
   const url=location.href;
@@ -398,55 +418,14 @@ btnShare.onclick=()=>{
     window.open(`https://wa.me/?text=${encodeURIComponent(text+" "+url)}`);
 };
 
-// ===== Leaderboard =====
-function loadLB(){
-  return JSON.parse(localStorage.getItem(LB_KEY)||"[]");
-}
+/* Buttons */
+btnStart.onclick=start;
+btnPause.onclick=()=>state==="paused"?resume():pause();
+btnMain.onclick=start;
+btnClose.onclick=hide;
 
-function saveScore(){
-
-  const name=document.getElementById("name").value.trim();
-  if(!name)return alert("নাম দিন");
-
-  let arr=loadLB();
-
-  arr.push({name,score});
-
-  arr.sort((a,b)=>b.score-a.score);
-
-  localStorage.setItem(LB_KEY,JSON.stringify(arr.slice(0,10)));
-
-  renderLB();
-  alert("Saved!");
-}
-
-function renderLB(){
-
-  let arr=loadLB();
-
-  lbEl.innerHTML="";
-
-  if(arr.length===0){
-    lbEl.innerHTML="<small>No data</small>";
-    return;
-  }
-
-  arr.forEach((x,i)=>{
-    let d=document.createElement("div");
-    d.className="lb-row";
-    d.innerHTML=`${i+1}. ${x.name} <b>${x.score}</b>`;
-    lbEl.appendChild(d);
-  });
-}
-
-// ===== Buttons =====
-btnStart.onclick=startGame;
-btnPause.onclick=()=>state==="paused"?resumeGame():pauseGame();
-btnClose.onclick=hideOverlay;
-
-// Init
-renderLB();
-showOverlay("menu");
+/* Init */
+show("menu");
 </script>
 
 </body>
