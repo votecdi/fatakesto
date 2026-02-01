@@ -3,100 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ammar vs BCL - The Ultimate Run</title>
+    <title>আম্মারকে বাঁচান!</title>
     <style>
-        :root { --gold: #FFD700; --bg: #050505; }
-        body { margin: 0; background: var(--bg); color: white; font-family: sans-serif; overflow: hidden; }
-        
-        /* গেম এরিয়া */
-        #game-box {
-            position: relative; width: 100%; max-width: 500px; height: 100vh;
-            margin: 0 auto; background: linear-gradient(180deg, #111, #000);
-            border: 2px solid #222; overflow: hidden;
+        /* আপনার ছবির মত হুবহু কালার এবং ডিজাইন */
+        body {
+            margin: 0; padding: 0;
+            background-color: #fcf9c5; /* স্ক্রিনশটের সেই হালকা হলুদ ব্যাকগ্রাউন্ড */
+            font-family: 'Arial', sans-serif;
+            overflow: hidden; touch-action: none;
         }
 
-        /* স্কোর বোর্ড - আপনার লিঙ্কের স্টাইলে */
-        #score-container {
-            position: absolute; top: 20px; width: 100%; text-align: center; z-index: 100;
-        }
-        .score-chip {
-            background: rgba(255, 215, 0, 0.1); border: 1px solid var(--gold);
-            padding: 8px 20px; border-radius: 30px; color: var(--gold);
-            font-weight: bold; font-size: 20px;
+        #game-container {
+            position: relative; width: 100%; max-width: 450px;
+            height: 100vh; margin: 0 auto;
+            background-color: #fcf9c5;
         }
 
-        /* আম্মার ও ছাত্রলীগ */
+        /* স্কোর বোর্ড স্টাইল */
+        #score-board {
+            position: absolute; top: 40px; left: 50%;
+            transform: translateX(-50%);
+            background: #fff9c4; border: 2px solid #e0cf8d;
+            padding: 10px 40px; border-radius: 15px;
+            font-size: 24px; font-weight: bold; color: #333;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* প্লেয়ার: আম্মার */
         #player {
-            position: absolute; bottom: 40px; width: 90px; height: 90px;
-            background: url('ammar.png') no-repeat center; background-size: contain;
-            transition: left 0.1s ease-out; z-index: 50;
-        }
-        .enemy {
-            position: absolute; width: 70px; height: 70px;
-            background: url('bcl.png') no-repeat center; background-size: contain;
+            position: absolute; bottom: 150px; left: 50%;
+            width: 90px; height: 90px;
+            background: url('ammar.png') no-repeat center center;
+            background-size: contain;
+            transform: translateX(-50%);
+            z-index: 100;
         }
 
-        /* গেম ওভার */
-        #game-over {
-            display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.9);
-            flex-direction: column; justify-content: center; align-items: center; z-index: 1000;
+        /* শত্রু: ছাত্রলীগ লোগো */
+        .enemy {
+            position: absolute; width: 60px; height: 60px;
+            background: url('bcl.png') no-repeat center center;
+            background-size: contain;
         }
-        .btn-restart {
-            margin-top: 20px; padding: 15px 40px; background: var(--gold);
-            color: black; border: none; font-weight: bold; border-radius: 5px; cursor: pointer;
+
+        /* খেলা শেষ পপআপ (ছবির মত) */
+        #game-over-modal {
+            display: none; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85%; background: white; border-radius: 20px;
+            border: 4px solid #d32f2f; padding: 30px 20px;
+            text-align: center; z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        #game-over-modal h2 { color: #d32f2f; font-size: 32px; margin: 0; }
+        .score-text { font-size: 20px; margin: 15px 0; color: #333; }
+
+        .btn {
+            display: block; width: 100%; padding: 15px; margin: 10px 0;
+            border: none; border-radius: 12px; font-size: 18px;
+            font-weight: bold; color: white; cursor: pointer;
+        }
+        .btn-restart { background-color: #5c8aff; }
+        .btn-follow { background-color: #66bb6a; }
+
+        /* লিডারবোর্ড সেকশন */
+        #leaderboard {
+            position: absolute; bottom: 20px; left: 50%;
+            transform: translateX(-50%); width: 90%;
+            background: white; border: 2px solid #5c8aff;
+            border-radius: 15px; padding: 15px; text-align: center;
         }
     </style>
 </head>
 <body>
 
-<div id="game-box">
-    <div id="score-container"><span class="score-chip">Score: <span id="score">0</span></span></div>
-    <div id="player" style="left: 45%;"></div>
+<div id="game-container">
+    <div id="score-board">Score: <span id="current-score">0</span></div>
     
-    <div id="game-over">
-        <h1 style="color:red">ধরা পড়েছেন!</h1>
-        <p>ছাত্রলীগ আম্মারকে ধরে ফেলেছে!</p>
-        <button class="btn-restart" onclick="location.reload()">আবার খেলুন</button>
+    <div id="player"></div>
+
+    <div id="game-over-modal">
+        <h2>খেলা শেষ!</h2>
+        <p class="score-text">আপনার স্কোর: <span id="final-score">0</span></p>
+        <button class="btn btn-restart" onclick="location.reload()">আবার খেলুন</button>
+        <button class="btn btn-follow">ফলো করুন</button>
+    </div>
+
+    <div id="leaderboard">
+        <h3 style="color:#d32f2f">🏆 সেরা খেলোয়াড়</h3>
+        <hr style="border: 0.5px solid #eee">
+        <p style="color:#777; font-size: 12px;">Powered by পাতা পাটোয়ারী</p>
     </div>
 </div>
 
 <script>
-    const box = document.getElementById('game-box');
+    const container = document.getElementById('game-container');
     const player = document.getElementById('player');
-    const scoreEl = document.getElementById('score');
-    let score = 0; let isOver = false; let pX = 45;
+    const scoreDisplay = document.getElementById('current-score');
+    const finalScoreDisplay = document.getElementById('final-score');
+    const gameOverModal = document.getElementById('game-over-modal');
 
-    // কন্ট্রোল
-    document.addEventListener('keydown', e => {
-        if(e.key === "ArrowLeft" && pX > 5) pX -= 15;
-        if(e.key === "ArrowRight" && pX < 85) pX += 15;
-        player.style.left = pX + "%";
+    let score = 0;
+    let isGameOver = false;
+
+    // --- মোবাইল ড্র্যাগ কন্ট্রোল (Touch dragging) ---
+    container.addEventListener('touchmove', (e) => {
+        if (isGameOver) return;
+        e.preventDefault();
+        let touch = e.touches[0];
+        let containerRect = container.getBoundingClientRect();
+        let newX = touch.clientX - containerRect.left;
+        
+        // বাউন্ডারি চেক (স্ক্রিনের বাইরে যাবে না)
+        if (newX > 45 && newX < containerRect.width - 45) {
+            player.style.left = newX + "px";
+        }
     });
 
-    function spawn() {
-        if(isOver) return;
+    // পিসি মাউস কন্ট্রোল
+    container.addEventListener('mousemove', (e) => {
+        if (isGameOver) return;
+        let containerRect = container.getBoundingClientRect();
+        let newX = e.clientX - containerRect.left;
+        if (newX > 45 && newX < containerRect.width - 45) {
+            player.style.left = newX + "px";
+        }
+    });
+
+    function spawnEnemy() {
+        if (isGameOver) return;
+
         const enemy = document.createElement('div');
-        enemy.className = 'enemy';
-        enemy.style.left = Math.random() * 85 + "%";
-        enemy.style.top = "-100px";
-        box.appendChild(enemy);
+        enemy.classList.add('enemy');
+        enemy.style.left = Math.random() * (container.clientWidth - 60) + "px";
+        enemy.style.top = "-70px";
+        container.appendChild(enemy);
 
-        let eY = -100;
-        let loop = setInterval(() => {
-            if(isOver) { clearInterval(loop); enemy.remove(); return; }
-            eY += (5 + score/10); enemy.style.top = eY + "px";
-
-            let pR = player.getBoundingClientRect();
-            let eR = enemy.getBoundingClientRect();
-
-            if(pR.left < eR.right && pR.right > eR.left && pR.top < eR.bottom && pR.bottom > eR.top) {
-                isOver = true; document.getElementById('game-over').style.display = 'flex';
+        let fallSpeed = 4 + (score / 10); // স্কোর বাড়লে গতি বাড়বে
+        let moveEnemy = setInterval(() => {
+            if (isGameOver) {
+                clearInterval(moveEnemy);
+                enemy.remove();
+                return;
             }
-            if(eY > window.innerHeight) { clearInterval(loop); enemy.remove(); score++; scoreEl.innerText = score; }
+
+            let currentTop = parseInt(enemy.style.top);
+            enemy.style.top = (currentTop + fallSpeed) + "px";
+
+            // কলিশন ডিটেকশন
+            let pRect = player.getBoundingClientRect();
+            let eRect = enemy.getBoundingClientRect();
+
+            if (pRect.left < eRect.right && pRect.right > eRect.left &&
+                pRect.top < eRect.bottom && pRect.bottom > eRect.top) {
+                endGame();
+            }
+
+            if (currentTop > window.innerHeight) {
+                enemy.remove();
+                clearInterval(moveEnemy);
+                score++;
+                scoreDisplay.innerText = score;
+            }
         }, 20);
-        setTimeout(spawn, Math.max(300, 1000 - score*2));
+
+        setTimeout(spawnEnemy, Math.max(500, 1200 - score * 5));
     }
-    spawn();
+
+    function endGame() {
+        isGameOver = true;
+        gameOverModal.style.display = 'block';
+        finalScoreDisplay.innerText = score;
+    }
+
+    // গেম শুরু
+    spawnEnemy();
 </script>
+
 </body>
 </html>
