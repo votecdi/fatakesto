@@ -1,0 +1,35 @@
+body{
+  margin:0;
+  font-family:'Hind Siliguri',sans-serif;
+  background:#070a14;
+  color:white;
+  text-align:center;
+}
+
+.wrap{
+  max-width:600px;
+  margin:auto;
+  padding:15px;
+}
+
+#game{
+  height:300px;
+  border:2px dashed #4f8cff;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:15px 0;
+  touch-action:none;
+}
+
+button{
+  padding:8px 14px;
+  border:none;
+  border-radius:8px;
+  background:#4f8cff;
+  color:#000;
+  font-weight:bold;
+  margin:5px;
+  cursor:pointer;
+}
